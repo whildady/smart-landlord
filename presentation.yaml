@@ -1,0 +1,167 @@
+presentation_slides:
+
+  - title: "Smart Landlord System"
+    points:
+      - "A web-based Real Estate Management Platform for landlords and tenants"
+      - "Centralizes property listings, unit management, leases, and rent tracking"
+      - "Built with PHP Laravel, MySQL, and Bootstrap 5"
+      - "Developed by Jimson John — University Academic Project, 2026"
+
+  - title: "Problem Statement"
+    points:
+      - "Landlords rely on manual, paper-based rent tracking — error-prone and slow"
+      - "Tenants lack a transparent channel to view lease terms or submit maintenance issues"
+      - "No centralized record of payment history or maintenance request status"
+      - "Communication between landlords and tenants is fragmented and inefficient"
+      - "The Smart Landlord System solves all of this in one unified platform"
+
+  - title: "Project Objectives"
+    points:
+      - "Centralize property, unit, and tenant management in one platform"
+      - "Enable landlords to track rent payments with full history and receipt generation"
+      - "Allow tenants to submit and monitor maintenance requests online"
+      - "Enforce role-based access control for Admin, Landlord, and Tenant"
+      - "Provide dashboards and exportable reports for data-driven decisions"
+
+  - title: "System Architecture"
+    explanation: "The system follows the MVC (Model-View-Controller) architectural pattern provided by the Laravel framework. This separates the application into three interconnected layers, improving maintainability, testability, and scalability."
+    schema_breakdown:
+      Presentation Layer:
+        purpose: "Renders the user interface — dashboards, forms, tables, and alerts — using Laravel Blade templates with Bootstrap 5 for responsive layout."
+        tables:
+          - "Laravel Blade Templates"
+          - "Bootstrap 5 — Responsive UI Framework"
+          - "JavaScript & jQuery"
+          - "AJAX — Asynchronous data loading"
+      Application Layer:
+        purpose: "Handles all business logic, routing, authentication, and data processing. Controllers manage requests, Models encapsulate data via Eloquent ORM, and Middleware enforces security."
+        tables:
+          - "PHP 8.x"
+          - "Laravel 10 Framework"
+          - "Eloquent ORM — Object Relational Mapper"
+          - "Laravel Sanctum — Authentication"
+          - "RESTful Routing"
+      Data Layer:
+        purpose: "Stores all persistent data in a MySQL relational database. Laravel Migrations manage schema versioning and Eloquent Relationships define how entities connect."
+        tables:
+          - "MySQL Database"
+          - "Laravel Migrations — Schema versioning"
+          - "Eloquent Relationships — hasMany, belongsTo, hasManyThrough"
+
+  - title: "Request-Response Flow"
+    points:
+      - "User sends an HTTP request through the browser"
+      - "Laravel Router matches the URL to the correct Controller method"
+      - "Controller calls the Model (Eloquent ORM) to interact with the database"
+      - "Database executes the query and returns results to the Model"
+      - "Controller passes the data to a Blade View template"
+      - "Blade View renders the HTML page and returns it to the user's browser"
+
+  - title: "User Roles & Permissions"
+    core_logic:
+      admin: "Full system access — manages all users, properties, leases, payments, and generates system-wide reports. Controls all configuration."
+      landlord: "Manages own properties and units, creates and monitors leases, tracks tenant payments, and responds to maintenance requests."
+      tenant: "Views own lease agreement, submits monthly rent payments, raises maintenance requests, and updates personal profile."
+    explanation: "Role-Based Access Control (RBAC) is enforced at every route and controller level using Laravel middleware, ensuring each user can only access what they are authorized for."
+
+  - title: "Core Features & Modules"
+    automation_features:
+      - "Authentication & Authorization — Secure login, registration, and role-based route protection via middleware"
+      - "Property Management — Add, edit, and search properties with images and supporting documents"
+      - "Unit Management — Manage individual units per property with vacancy tracking and rent configuration"
+      - "Tenant Management — Register tenants, attach ID documents, and view full tenancy history"
+      - "Lease Management — Create, renew, or terminate lease agreements with complete audit trail"
+      - "Rent & Payment Tracking — Record payments, track overdue status, and generate printable receipts"
+      - "Maintenance Requests — Tenants submit issues; landlords update status from open to resolved"
+      - "Dashboard & Reporting — Role-specific dashboards with income summaries and PDF export"
+
+  - title: "Database Design"
+    explanation: "The system uses a normalized relational database with 16 tables across functional domains. Six core tables handle the primary business logic. All tables are connected through foreign key constraints that enforce referential integrity."
+    schema_breakdown:
+      users:
+        purpose: "Stores all system users — Admin, Landlord, and Tenant — with role differentiation and authentication credentials."
+        tables:
+          - "id · INT PRIMARY KEY AUTO_INCREMENT"
+          - "name · VARCHAR(100)"
+          - "email · VARCHAR(100) UNIQUE"
+          - "role · ENUM(admin, landlord, tenant)"
+          - "status · ENUM(active, inactive)"
+          - "password · VARCHAR(255)"
+          - "created_at · TIMESTAMP"
+      properties:
+        purpose: "Each property belongs to a landlord and can contain multiple units. Supports residential and commercial types."
+        tables:
+          - "id · INT PRIMARY KEY AUTO_INCREMENT"
+          - "landlord_id · FK → users.id"
+          - "name · VARCHAR(255)"
+          - "address · VARCHAR(255)"
+          - "type · ENUM(residential, commercial, mixed)"
+          - "created_at · TIMESTAMP"
+      units:
+        purpose: "Individual rentable units within a property. Tracks availability status and links to tenants via lease."
+        tables:
+          - "id · INT PRIMARY KEY AUTO_INCREMENT"
+          - "property_id · FK → properties.id"
+          - "unit_number · VARCHAR(100)"
+          - "rent_amount · DECIMAL(10,2)"
+          - "status · ENUM(vacant, occupied, maintenance)"
+          - "tenant_id · FK → users.id (nullable)"
+      lease_agreements:
+        purpose: "Binds a tenant to a unit for a defined rental period with payment cycle and security deposit terms."
+        tables:
+          - "id · INT PRIMARY KEY AUTO_INCREMENT"
+          - "tenant_id · FK → users.id"
+          - "unit_id · FK → units.id"
+          - "start_date · DATE"
+          - "end_date · DATE"
+          - "rent_amount · DECIMAL(15,2)"
+          - "status · VARCHAR(50) — Active / Expired"
+      invoices:
+        purpose: "Monthly billing records generated per tenant per unit. Tracks payment status from unpaid to fully paid."
+        tables:
+          - "id · INT PRIMARY KEY AUTO_INCREMENT"
+          - "tenant_id · FK → users.id"
+          - "unit_id · FK → units.id"
+          - "amount · DECIMAL(10,2)"
+          - "status · ENUM(unpaid, partially_paid, paid)"
+          - "billing_month · VARCHAR(50)"
+      payments:
+        purpose: "Records every rent transaction against an invoice. Supports multiple local payment methods."
+        tables:
+          - "id · INT PRIMARY KEY AUTO_INCREMENT"
+          - "invoice_id · FK → invoices.id"
+          - "amount_paid · DECIMAL(10,2)"
+          - "payment_method · ENUM(mpesa, tigo_pesa, airtel_money, bank_transfer, cash)"
+          - "reference_number · VARCHAR(100)"
+          - "paid_at · TIMESTAMP"
+
+  - title: "Database Relationships"
+    points:
+      - "A User (Landlord) has many Properties"
+      - "A Property has many Units"
+      - "A Unit has one active Lease Agreement at a time"
+      - "A Lease Agreement belongs to one Unit and one Tenant"
+      - "A Unit generates many Invoices per billing cycle"
+      - "An Invoice has many Payments (partial payment support)"
+      - "A Unit has many Maintenance Tasks"
+      - "A Property has many Expenses and Utility Bills"
+      - "A Utility Bill is split across many Units via Utility Splits"
+
+  - title: "Future Recommendations"
+    future_work:
+      - "Online Payment Integration — Stripe or M-Pesa API for direct in-app rent payments with instant confirmation"
+      - "Mobile Application — Android and iOS companion app with push notifications for payment reminders"
+      - "Automated Lease Renewal Alerts — Email notifications 30 days before lease expiry to prevent missed renewals"
+      - "Cloud Hosting & Deployment — AWS or DigitalOcean for high availability, scalability, and remote access"
+      - "Analytics Dashboard — Visual income trends, occupancy rates, and payment performance charts for landlords"
+      - "Document Management — Secure cloud storage via Amazon S3 for lease contracts, IDs, and property certificates"
+
+  - title: "Conclusion"
+    points:
+      - "The Smart Landlord System successfully digitizes the full real estate management workflow"
+      - "Eliminates paper-based processes and manual tracking for landlords and tenants"
+      - "Enforces security and data integrity through role-based access control at every layer"
+      - "Built on industry-standard tools — PHP Laravel, MySQL, and Bootstrap 5"
+      - "16-table normalized database designed for scalability and referential integrity"
+      - "Provides a strong foundation for future enhancements including payments and mobile access"
+    explanation: "This project demonstrates applied competency in full-stack web development, relational database design, MVC architecture, and software engineering principles — achieving all stated academic objectives."

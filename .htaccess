@@ -1,0 +1,13 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # 1. Kama mtu akiingia kwenye root domain, mpeleke moja kwa moja kwenye folder la web/
+    RewriteRule ^$ web/ [L]
+    
+    # 2. Kama faili lipo (picha, css, js) au folder lipo kweli, lisiathiriwe
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    
+    # 3. Maombi mengine yote yapelekwe web/index.php kwa ajili ya usindikaji wa Yii2
+    RewriteRule ^(.*)$ web/$1 [L]
+</IfModule>
